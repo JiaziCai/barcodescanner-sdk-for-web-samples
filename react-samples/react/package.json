@@ -21,6 +21,7 @@
     "react-dom": "^16.14.0"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "scandit-sdk": "^5.5.0"
   },
   "keywords": [
