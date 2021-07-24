@@ -13,9 +13,41 @@ class Demo extends Component {
           .get(`https://api.crowdpass.co/user/getattendeeeventlink?eventId=${eventId}&attendeeId=${attendeeId}`)
           .then((res) => {
             if (res.data.success) {
-              return res.data.attendeeEventLink.attendeeId;
+              return res.data.attendeeEventLink;
             }
           });
+      } catch (error) {
+        return null;
+      }
+    };
+
+    const returnAttendeeData = async (attendeeId) => {
+      try {
+        return await axios.get(`https://api.crowdpass.co/user/getattendee/${attendeeId}`).then((res) => {
+          if (res.data.success) {
+            return res.data.attendeeInfo;
+          }
+        });
+      } catch (error) {
+        return null;
+      }
+    };
+
+    const returnCheckIn = async (eventId, attendeeId) => {
+      try {
+        return await axios({
+          url: `https://api.crowdpass.co/user/checkin`,
+          method: "post",
+          data: {
+            attendeeId: attendeeId,
+            eventId: eventId,
+            checkin: 1,
+          },
+        }).then((res) => {
+          if (res.data.success) {
+            return res.data.attendeeEventLink.checkin;
+          }
+        });
       } catch (error) {
         return null;
       }
@@ -32,7 +64,6 @@ class Demo extends Component {
           })
         }
         onScan={async (scanResult) => {
-          let result = await returnData(681, 59923);
           let baseUrl = scanResult.barcodes[0].data;
           let paraUrl = baseUrl.indexOf("check/");
           let newSlice = baseUrl.slice(paraUrl + 6);
@@ -40,15 +71,34 @@ class Demo extends Component {
           let eventId = newSlice.slice(newSlice.indexOf("/") + 1, newSlice.length - 1);
           console.log(attendeeId, "attendeeid");
           console.log(eventId, "eventid");
+          let { checkin } = await returnData(eventId, attendeeId);
+          let { firstName, lastName, attendeeEmail } = await returnAttendeeData(attendeeId);
+          let finalResult;
+          if (checkin == null) {
+            finalResult = await returnCheckIn(eventId, attendeeId);
+          } else {
+            finalResult = false;
+          }
           document.getElementById("scandit-barcode-result").innerHTML = scanResult.barcodes.reduce(function (
             string,
-            barcode,
-            index = result
+            barcode
           ) {
             // alert(barcode.data);
-            console.log(result, "reult");
             // return result;
-            return string + Barcode.Symbology.toHumanizedName(barcode.symbology) + ": " + result + "<br>";
+            finalResult = finalResult == true ? "Successfully checked in" : "Not valid for check in";
+            return (
+              string +
+              Barcode.Symbology.toHumanizedName(barcode.symbology) +
+              ": " +
+              finalResult +
+              " " +
+              firstName +
+              " " +
+              lastName +
+              " " +
+              attendeeEmail +
+              "<br>"
+            );
           },
           "");
         }}
