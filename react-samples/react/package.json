@@ -16,13 +16,14 @@
     "react": "16.x"
   },
   "devDependencies": {
-    "nwb": "^0.25.2",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0"
+  
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "scandit-sdk": "^5.5.0"
+    "scandit-sdk": "^5.5.0",
+    "nwb": "^0.25.2",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   },
   "keywords": [
     "scandit",
